@@ -1,0 +1,114 @@
+// Supabase Edge Function: reset-student-password
+//
+// Bir öğretmenin, bir öğrencinin şifresini sıfırlamasını GÜVENLİ şekilde
+// sağlar. Bu işlem tarayıcıda (anon key ile) YAPILAMAZ çünkü şifre
+// değiştirmek supabase'in "service role" anahtarını gerektirir — bu anahtar
+// asla tarayıcıya/istemciye gönderilmemelidir. Bu fonksiyon, o anahtarı
+// yalnızca Supabase'in sunucusunda, ortam değişkeni (secret) olarak kullanır.
+//
+// Güvenlik akışı:
+// 1. İsteği yapan kullanıcının kimliği (JWT) doğrulanır.
+// 2. O kullanıcının gerçekten "ogretmen" rolünde ve aktif olduğu,
+//    veritabanından (profiles tablosu) teyit edilir.
+// 3. Sadece bu iki kontrol geçerse, hedef öğrencinin şifresi
+//    auth.admin.updateUserById ile değiştirilir.
+//
+// Deploy etmeden önce hiçbir ayar yapmana gerek yok: SUPABASE_URL ve
+// SUPABASE_SERVICE_ROLE_KEY, Supabase tarafından fonksiyona otomatik olarak
+// enjekte edilir.
+
+// deno-lint-ignore-file no-explicit-any
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: CORS_HEADERS });
+  }
+  if (req.method !== "POST") {
+    return json({ error: "Yalnızca POST desteklenir." }, 405);
+  }
+
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    return json({ error: "Sunucu yapılandırma hatası." }, 500);
+  }
+
+  // İsteği yapan kullanıcının JWT'sini al (Authorization: Bearer <token>).
+  const authHeader = req.headers.get("Authorization") || "";
+  const jwt = authHeader.replace(/^Bearer\s+/i, "");
+  if (!jwt) {
+    return json({ error: "Giriş yapmanız gerekiyor." }, 401);
+  }
+
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "Geçersiz istek gövdesi." }, 400);
+  }
+
+  const targetUsername = (body?.username || "").toString().trim();
+  const newPassword = (body?.newPassword || "").toString();
+  if (!targetUsername || newPassword.length < 6) {
+    return json({ error: "Kullanıcı adı ve en az 6 karakterli yeni şifre gerekli." }, 400);
+  }
+
+  // service_role client: RLS'yi atlar, yalnızca bu sunucu tarafı kodda kullanılır.
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
+  // 1) Çağıranın kimliğini JWT'den doğrula.
+  const { data: callerData, error: callerErr } = await admin.auth.getUser(jwt);
+  if (callerErr || !callerData?.user) {
+    return json({ error: "Oturum doğrulanamadı." }, 401);
+  }
+  const callerId = callerData.user.id;
+
+  // 2) Çağıranın gerçekten aktif bir öğretmen olduğunu profiles'tan teyit et.
+  const { data: callerProfile, error: callerProfileErr } = await admin
+    .from("profiles")
+    .select("role, active")
+    .eq("id", callerId)
+    .maybeSingle();
+
+  if (callerProfileErr || !callerProfile || callerProfile.role !== "ogretmen" || callerProfile.active === false) {
+    return json({ error: "Bu işlem için öğretmen yetkisi gerekiyor." }, 403);
+  }
+
+  // 3) Hedef kullanıcıyı (öğrenciyi) username üzerinden bul.
+  const { data: targetProfile, error: targetErr } = await admin
+    .from("profiles")
+    .select("id, username, role")
+    .eq("username", targetUsername)
+    .maybeSingle();
+
+  if (targetErr || !targetProfile) {
+    return json({ error: "Kullanıcı bulunamadı." }, 404);
+  }
+
+  // 4) Şifreyi service_role ile güncelle (anon key ile YAPILAMAYAN admin işlemi).
+  const { error: updateErr } = await admin.auth.admin.updateUserById(targetProfile.id, {
+    password: newPassword,
+  });
+
+  if (updateErr) {
+    return json({ error: "Şifre güncellenemedi: " + updateErr.message }, 500);
+  }
+
+  return json({ ok: true, username: targetProfile.username });
+});
