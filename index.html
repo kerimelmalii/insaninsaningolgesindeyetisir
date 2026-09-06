@@ -674,7 +674,10 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     el.textContent = msg;
     el.style.display = "block";
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>{ el.style.display = "none"; }, 3400);
+    // Hata mesajları bazen uzun/teknik olabiliyor (ör. sunucudan gelen
+    // gerçek hata metni); okuyabilmek/ekran görüntüsü alabilmek için
+    // hataları normal bildirimlerden daha uzun süre ekranda tutuyoruz.
+    toastTimer = setTimeout(()=>{ el.style.display = "none"; }, isErr ? 9000 : 3400);
   }
 
   /* ---------------- Veri deposu soyutlaması ---------------- */
@@ -849,6 +852,29 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
+  }
+  /* supabase-js, bir Edge Function 2xx dışında bir HTTP kodu döndürdüğünde
+     (ör. bizim fonksiyonlarımızın kullandığı 401/403/404/500), "error"
+     nesnesinin .message alanına genelde faydasız, genel bir metin
+     ("Edge Function returned a non-2xx status code") koyar; fonksiyonun
+     kendi döndürdüğü asıl (Türkçe, anlaşılır) hata mesajı yanıtın gövdesinde
+     kalır ve otomatik okunmaz. Bu yardımcı, mümkünse o gerçek gövdeyi okuyup
+     kullanıcıya anlamlı bir hata gösterebilmemizi sağlıyor. */
+  async function sbFunctionErrorDetail(error, data){
+    if(error){
+      try{
+        if(error.context && typeof error.context.clone === "function"){
+          const body = await error.context.clone().json().catch(()=>null);
+          if(body && body.error) return body.error;
+          const text = await error.context.clone().text().catch(()=>null);
+          if(text) return text.slice(0,300);
+        }
+      }catch(e){ /* yoksay, aşağıdaki yedeklere düş */ }
+      return error.message || (error.name || "bilinmeyen hata") ;
+    }
+    if(data && data.error) return data.error;
+    if(!data) return "bilinmeyen hata (sunucudan yanıt alınamadı)";
+    return "bilinmeyen hata";
   }
   async function sbGetProfileByUsername(username){
     try{
@@ -2116,12 +2142,12 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
               body: { username: b.dataset.username, newPassword: pass }
             });
             if(error || !data || !data.ok){
-              toast("Şifre sıfırlanamadı: "+(error?error.message:(data&&data.error)||"bilinmeyen hata"), true);
+              toast("Şifre sıfırlanamadı: "+(await sbFunctionErrorDetail(error, data)), true);
               return;
             }
             toast("Yeni şifre: "+pass+" (öğrenciye iletin)");
           }catch(e){
-            toast("Şifre sıfırlanamadı, lütfen tekrar deneyin.", true);
+            toast("Şifre sıfırlanamadı: "+(e&&e.message?e.message:"bağlantı sorunu, lütfen tekrar deneyin."), true);
           }finally{
             b.disabled = false;
           }
@@ -2141,14 +2167,14 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
             body: { username: b.dataset.username }
           });
           if(error || !data || !data.ok){
-            toast("Hesap silinemedi: "+(error?error.message:(data&&data.error)||"bilinmeyen hata"), true);
+            toast("Hesap silinemedi: "+(await sbFunctionErrorDetail(error, data)), true);
             return;
           }
           if(teacherViewingStudent===b.dataset.id) teacherViewingStudent = null;
           toast("Öğrenci hesabı kalıcı olarak silindi.");
           render();
         }catch(e){
-          toast("Hesap silinemedi, lütfen tekrar deneyin.", true);
+          toast("Hesap silinemedi: "+(e&&e.message?e.message:"bağlantı sorunu, lütfen tekrar deneyin."), true);
         }finally{
           b.disabled = false;
         }
