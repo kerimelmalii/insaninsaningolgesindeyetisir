@@ -289,6 +289,8 @@ svg{ width:1em; height:1em; vertical-align:-0.15em; }
   display:flex; flex-direction:column;
   position:relative;
 }
+.event-card-photo{ width:100%; height:150px; overflow:hidden; background:var(--ivory); }
+.event-card-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
 .event-card .seal{
   position:absolute; top:14px; right:14px;
   width:56px; height:56px; border-radius:50%;
@@ -1169,6 +1171,23 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
       return rows.filter(r=>String(r.eventId)===String(eventId)).sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0));
     }catch(e){ return []; }
   }
+  /* Etkinlik kartlarında (ana sayfa şeridi ve Etkinlikler sayfası) küçük bir
+     kapak fotoğrafı gösterebilmek için, her etkinliğin İLK (en küçük
+     sort_order'lı) fotoğrafını tek seferde eşleyen bir harita döner:
+     {eventId: {url, sortOrder, ...}}. Tüm kartlar için tek bir sorgu
+     yeterli olsun diye event_photos tablosunun tamamı bir kez okunur. */
+  async function getEventLeadPhotoMap(){
+    if(Store.mode!=="supabase" && Store.mode!=="db") return {};
+    try{
+      const rows = await Store.getAll("event_photos");
+      const map = {};
+      rows.forEach(r=>{
+        const key = String(r.eventId);
+        if(!map[key] || (r.sortOrder||0) < (map[key].sortOrder||0)) map[key] = r;
+      });
+      return map;
+    }catch(e){ return {}; }
+  }
   /* Yüklenen fotoğrafın kendisi Supabase Storage'daki "event-photos" adlı
      herkese açık (public-read) bucket'a konur; event_photos tablosuna
      yalnızca fotoğrafın genel (public) URL'i ve sıra numarası kaydedilir. */
@@ -1326,10 +1345,11 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
   }
 
   /* ---------------- Sayfa şablonları ---------------- */
-  function homeStripCard(e){
+  function homeStripCard(e, photoUrl){
     const dt = fmtDateShort(e.date);
     return (
       '<a class="event-card is-link" href="#/etkinlik/'+encodeURIComponent(e.id)+'">'+
+        (photoUrl ? '<div class="event-card-photo"><img src="'+escapeHtml(photoUrl)+'" alt="" loading="lazy"></div>' : '')+
         '<div class="seal"><span class="d">'+dt.d+'</span><span class="m">'+dt.m+'</span></div>'+
         '<div class="body">'+
           '<div class="who"><div class="avatar">'+initials(e.speaker)+'</div><div class="meta"><div class="title">'+escapeHtml(e.speaker)+'</div><div class="role">'+escapeHtml(e.title)+'</div></div></div>'+
@@ -1342,9 +1362,10 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
 
   async function viewHome(){
     const showcase = await getShowcaseEvents();
+    const photoMap = await getEventLeadPhotoMap();
     const { upcoming, past } = splitShowcaseByDate(showcase);
-    const upcomingStrip = upcoming.slice(0,4).map(homeStripCard).join("");
-    const pastStrip = past.slice(0,4).map(homeStripCard).join("");
+    const upcomingStrip = upcoming.slice(0,4).map(e=>homeStripCard(e, photoMap[String(e.id)] && photoMap[String(e.id)].url)).join("");
+    const pastStrip = past.slice(0,4).map(e=>homeStripCard(e, photoMap[String(e.id)] && photoMap[String(e.id)].url)).join("");
     return (
       '<section class="hero">'+
         '<div class="hero-inner">'+
@@ -1430,13 +1451,14 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     );
   }
 
-  function eventDetailCard(e, isUpcoming, idForLink){
+  function eventDetailCard(e, isUpcoming, idForLink, photoUrl){
     const dt = fmtDateShort(e.date);
     const hasDetail = idForLink && e.article && e.article.length;
     const tag = hasDetail ? "a" : "div";
     const attrs = hasDetail ? ' href="#/etkinlik/'+encodeURIComponent(idForLink)+'"' : "";
     return (
       '<'+tag+' class="event-card'+(hasDetail?" is-link":"")+'"'+attrs+'>'+
+        (photoUrl ? '<div class="event-card-photo"><img src="'+escapeHtml(photoUrl)+'" alt="" loading="lazy"></div>' : '')+
         '<div class="seal"><span class="d">'+dt.d+'</span><span class="m">'+dt.m+'</span></div>'+
         '<div class="body">'+
           '<div class="who"><div class="avatar">'+initials(e.speaker)+'</div><div class="meta"><div class="title">'+escapeHtml(e.speaker)+'</div><div class="role">'+escapeHtml(e.title)+'</div></div></div>'+
@@ -1464,16 +1486,17 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
 
   async function viewEvents(){
     const showcase = await getShowcaseEvents();
+    const photoMap = await getEventLeadPhotoMap();
     const { upcoming, past } = splitShowcaseByDate(showcase);
     return (
       '<section class="section"><div class="wrap">'+
         '<div class="section-head"><span class="eyebrow">Etkinlik Takvimi</span><h2>Gelecek Etkinlikler</h2><p>Katılım ve değerlendirme, öğrenci girişinden yapılır.</p></div>'+
-        '<div class="grid-3">'+(upcoming.length ? upcoming.map((e)=>eventDetailCard(e,true,e.id)).join("") : '<div class="empty-note">Şu anda planlanmış bir yaklaşan etkinlik yok.</div>')+'</div>'+
+        '<div class="grid-3">'+(upcoming.length ? upcoming.map((e)=>eventDetailCard(e,true,e.id,photoMap[String(e.id)]&&photoMap[String(e.id)].url)).join("") : '<div class="empty-note">Şu anda planlanmış bir yaklaşan etkinlik yok.</div>')+'</div>'+
       '</div></section>'+
       '<div class="motif-divider bronze"></div>'+
       '<section class="section alt"><div class="wrap">'+
         '<div class="section-head"><span class="eyebrow">Arşiv</span><h2>Geçmiş Etkinlikler</h2><p>Bir karta tıkladığınızda, o günün konusuna dair görsel bilgiler ve ayrıntılı bir yazının yer aldığı etkinlik sayfası açılır.</p></div>'+
-        '<div class="grid-3">'+(past.length ? past.map((e)=>eventDetailCard(e,false,e.id)).join("") : '<div class="empty-note">Henüz eklenmiş bir geçmiş etkinlik yok.</div>')+'</div>'+
+        '<div class="grid-3">'+(past.length ? past.map((e)=>eventDetailCard(e,false,e.id,photoMap[String(e.id)]&&photoMap[String(e.id)].url)).join("") : '<div class="empty-note">Henüz eklenmiş bir geçmiş etkinlik yok.</div>')+'</div>'+
       '</div></section>'
     );
   }
