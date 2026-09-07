@@ -1286,6 +1286,54 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     });
   }
 
+  /* Öğretmen panelindeki "Gelen Cevaplar" tablosunda ve öğrenci ayrıntı
+     geçmişinde, özet/kazanım metinleri kısaltılıp "…" ile gösteriliyordu
+     ama tam metni açacak bir yol yoktu ("cevapları açamıyorum" hatası
+     buradan kaynaklanıyordu). Bu modal, bir öğrencinin tek bir
+     değerlendirme cevabının TAMAMINI gösterir. */
+  async function openSubmissionModal(id){
+    const sub = await Store.getOne("submissions", id);
+    if(!sub){ toast("Bu cevap bulunamadı (silinmiş olabilir).", true); return; }
+    const ev = await Store.getOne("events", sub.eventId);
+    let el = $("#submissionOverlay");
+    if(el) el.remove();
+    el = document.createElement("div");
+    el.className = "overlay";
+    el.id = "submissionOverlay";
+    el.innerHTML = (
+      '<div class="modal modal-article">'+
+        '<button class="modal-close" id="submissionClose" aria-label="Kapat">&times;</button>'+
+        '<div class="modal-head"><span class="article-tag">Öğrenci Cevabı</span><h2 style="margin:4px 0 2px;">'+escapeHtml(sub.studentName||sub.username||"")+'</h2></div>'+
+        '<div class="modal-body">'+
+          '<p class="article-meta">'+escapeHtml(ev?ev.title:sub.eventId)+(ev&&ev.date?' &middot; '+fmtDate(ev.date):'')+(sub.submittedAt?' &middot; Gönderim: '+fmtDateTime(sub.submittedAt):'')+'</p>'+
+          '<div class="tags" style="margin-bottom:14px;">'+
+            '<span class="tag">Katılım: '+(sub.attended?"Evet":"Hayır")+'</span>'+
+            (sub.timeSlotChosen ? '<span class="tag">Saat Dilimi: '+escapeHtml(sub.timeSlotChosen)+'</span>' : '')+
+            (sub.speakerNameConfirm ? '<span class="tag">Konuşmacı Teyidi: '+escapeHtml(sub.speakerNameConfirm)+'</span>' : '')+
+          '</div>'+
+          '<div class="section-head" style="margin:0 0 6px;"><h3 style="font-size:1.05rem;margin:0;">Özet</h3></div>'+
+          '<div class="article-body">'+String(sub.summaryText||"—").split(/\n{2,}/).map(p=>'<p>'+escapeHtml(p.trim())+'</p>').join("")+'</div>'+
+          '<div class="section-head" style="margin:18px 0 6px;"><h3 style="font-size:1.05rem;margin:0;">Kazanım</h3></div>'+
+          '<div class="article-body">'+String(sub.kazanımText||"—").split(/\n{2,}/).map(p=>'<p>'+escapeHtml(p.trim())+'</p>').join("")+'</div>'+
+        '</div>'+
+      '</div>'
+    );
+    document.body.appendChild(el);
+    $("#submissionClose").addEventListener("click", closeSubmissionModal);
+    el.addEventListener("click", function(ev2){ if(ev2.target===el) closeSubmissionModal(); });
+  }
+  function closeSubmissionModal(){
+    const el = $("#submissionOverlay");
+    if(el) el.remove();
+  }
+  function bindSubmissionModalDelegate(){
+    document.body.addEventListener("click", function(ev){
+      const btn = ev.target.closest("[data-act=viewSubmission]");
+      if(!btn) return;
+      openSubmissionModal(btn.dataset.id);
+    });
+  }
+
   function layoutHeader(){
     const path = location.hash || "#/";
     const links = NAV.map(n=>{
@@ -1642,7 +1690,8 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
       if(!sub) statusCell = '<span class="hint">Katılım kaydı yok</span>';
       else if(grade) statusCell = '<span class="badge done">Puan: '+grade.score+'/100</span>';
       else statusCell = '<span class="badge wait">Değerlendirme bekleniyor</span>';
-      return '<tr><td>'+escapeHtml(e.title)+'</td><td>'+fmtDate(e.date)+'</td><td>'+(sub?escapeHtml(sub.summaryText).slice(0,60)+"…":"—")+'</td><td>'+statusCell+'</td></tr>';
+      return '<tr><td>'+escapeHtml(e.title)+'</td><td>'+fmtDate(e.date)+'</td><td>'+(sub?escapeHtml(sub.summaryText).slice(0,60)+"…":"—")+'</td><td>'+statusCell+'</td>'+
+        '<td>'+(sub?'<button class="btn btn-ghost btn-sm" type="button" data-act="viewSubmission" data-id="'+sub.id+'">Aç</button>':'')+'</td></tr>';
     }).join("");
 
     const annHtml = announcements.length ? (
@@ -1669,7 +1718,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
         openHtml+
         '<h2 style="font-size:1.2rem;color:var(--bronze-deep);margin-top:36px;">Geçmiş Etkinliklerim <span class="hint">(salt okunur)</span></h2>'+
         (pastEvents.length ? (
-          '<div class="table-wrap"><table class="data-table"><thead><tr><th>Etkinlik</th><th>Tarih</th><th>Gönderdiğim Özet</th><th>Durum</th></tr></thead><tbody>'+historyRows+'</tbody></table></div>'
+          '<div class="table-wrap"><table class="data-table"><thead><tr><th>Etkinlik</th><th>Tarih</th><th>Gönderdiğim Özet</th><th>Durum</th><th></th></tr></thead><tbody>'+historyRows+'</tbody></table></div>'
         ) : '<div class="empty-note">Henüz geçmiş bir etkinlik kaydınız yok.</div>')+
         (Store.mode==="local" ? '<div class="disclosure-note">Bu tarayıcıda deneme modundasınız: verileriniz yalnızca bu cihazda saklanır ve öğretmeninizin panosunda görünmez.</div>' : '')+
       '</div></div>'
@@ -1769,7 +1818,8 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
           return '<tr><td>'+escapeHtml(ev?ev.title:s.eventId)+'</td><td>'+(ev?fmtDate(ev.date):"-")+'</td>'+
             '<td style="max-width:220px;">'+escapeHtml(s.summaryText||"").slice(0,80)+'…</td>'+
             '<td style="max-width:220px;">'+escapeHtml(s.kazanımText||"").slice(0,80)+'…</td>'+
-            '<td>'+(grade?('<span class="badge done">'+grade.score+'/100</span>'):'<span class="badge wait">Bekliyor</span>')+'</td></tr>';
+            '<td>'+(grade?('<span class="badge done">'+grade.score+'/100</span>'):'<span class="badge wait">Bekliyor</span>')+'</td>'+
+            '<td><button class="btn btn-ghost btn-sm" type="button" data-act="viewSubmission" data-id="'+s.id+'">Aç</button></td></tr>';
         }).join("");
         studentDetailHtml = (
           '<div class="card-panel" style="margin:20px 0 24px;">'+
@@ -1781,7 +1831,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
               '<div class="stat-tile"><div class="num">'+stats.gradedCount+'</div><div class="lbl">Puanlanan</div></div>'+
               '<div class="stat-tile"><div class="num">'+(stats.avg!=null?stats.avg:"—")+'</div><div class="lbl">Not Ortalaması</div></div>'+
             '</div>'+
-            (stats.subs.length ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Etkinlik</th><th>Tarih</th><th>Özet</th><th>Kazanım</th><th>Puan</th></tr></thead><tbody>'+histRows+'</tbody></table></div>' : '<div class="empty-note">Bu öğrencinin henüz gönderdiği bir değerlendirme yok.</div>')+
+            (stats.subs.length ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Etkinlik</th><th>Tarih</th><th>Özet</th><th>Kazanım</th><th>Puan</th><th></th></tr></thead><tbody>'+histRows+'</tbody></table></div>' : '<div class="empty-note">Bu öğrencinin henüz gönderdiği bir değerlendirme yok.</div>')+
           '</div>'
         );
       }
@@ -1848,7 +1898,8 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
           '<td style="max-width:220px;">'+escapeHtml(s.summaryText).slice(0,80)+'…</td>'+
           '<td style="max-width:220px;">'+escapeHtml(s.kazanımText).slice(0,80)+'…</td>'+
           '<td>'+(grade?('<span class="badge done">'+grade.score+'/100</span>'):'<span class="badge wait">Bekliyor</span>')+'</td>'+
-          '<td><div style="display:flex;gap:6px;align-items:center;">'+
+          '<td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
+            '<button class="btn btn-ghost btn-sm" type="button" data-act="viewSubmission" data-id="'+s.id+'">Aç</button>'+
             '<input type="number" min="0" max="100" placeholder="Puan" style="width:70px;padding:6px 8px;" data-score="'+(s.eventId+"__"+s.username)+'" value="'+(grade?grade.score:"")+'">'+
             '<button class="btn btn-teal btn-sm" data-act="grade" data-id="'+(s.eventId+"__"+s.username)+'">Onayla</button>'+
           '</div></td></tr>'
@@ -2543,6 +2594,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
   document.addEventListener("DOMContentLoaded", async function(){
     $("#footerSlot").outerHTML = layoutFooter();
     bindReadMoreDelegate();
+    bindSubmissionModalDelegate();
     await Store.init();
     render();
   });
