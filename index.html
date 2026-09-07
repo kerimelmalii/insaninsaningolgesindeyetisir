@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>İnsan İnsanın Gölgesinde Yetişir</title>
 <meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -248,6 +249,7 @@ svg{ width:1em; height:1em; vertical-align:-0.15em; }
 }
 
 .hero-strip{ background:var(--ivory); border-top:1px solid var(--line); padding:34px 0 42px; }
+.hero-strip.alt{ background:var(--parchment); }
 .hero-strip h2{ font-size:1.35rem; color:var(--bronze-deep); }
 .strip-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:18px; }
 
@@ -373,34 +375,6 @@ a.event-card{ text-decoration:none; color:inherit; }
 }
 .tab-btn.active{ background:var(--bronze); color:var(--ivory); }
 
-/* ---------- Gallery / News ---------- */
-.news-item{
-  display:grid; grid-template-columns:90px 1fr; gap:16px;
-  padding:18px 0; border-bottom:1px solid var(--line);
-}
-.news-item:last-child{ border-bottom:none; }
-.news-date{
-  font-family:"Inter",sans-serif; text-align:center;
-  background:var(--ivory); border:1px solid var(--line); border-radius:3px; padding:8px 4px; height:fit-content;
-}
-.news-date .d{ font-family:"Amiri",serif; font-size:1.3rem; font-weight:700; color:var(--kiremit-deep); line-height:1; }
-.news-date .m{ font-size:.62rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); }
-.news-item h3{ font-size:1.1rem; margin-bottom:4px; color:var(--bronze-deep); }
-.news-item p{ margin:0; color:var(--ink-soft); font-size:.96rem; }
-
-.gallery-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-.gallery-tile{
-  aspect-ratio:1; border-radius:3px; position:relative; overflow:hidden;
-  border:1px solid var(--line); box-shadow:var(--shadow-sm);
-  display:flex; align-items:flex-end;
-}
-.gallery-tile .cap{
-  position:relative; z-index:2; width:100%; padding:10px 12px;
-  font-family:"Inter",sans-serif; font-size:.74rem; color:var(--ivory);
-  background:linear-gradient(0deg, rgba(20,14,7,.72), transparent);
-}
-.gallery-tile svg{ position:absolute; inset:0; width:100%; height:100%; }
-
 /* ---------- Contact ---------- */
 .contact-grid{ display:grid; grid-template-columns:1fr 1.1fr; gap:40px; }
 .contact-info dl{ display:flex; flex-direction:column; gap:16px; margin:0; }
@@ -469,6 +443,14 @@ input:focus, textarea:focus, select:focus{ border-color:var(--turquoise); }
 .article-meta{ font-family:"Inter",sans-serif; font-size:.82rem; color:var(--ink-soft); margin:0 0 14px; }
 .article-body p{ margin:0 0 13px; font-size:.98rem; line-height:1.65; color:var(--ink); }
 .article-body p:last-child{ margin-bottom:0; }
+
+.event-photo-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:12px; }
+.event-photo-tile{
+  display:block; aspect-ratio:1; border-radius:3px; overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-sm);
+}
+.event-photo-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+
 .btn-readmore{ background:none; border:none; padding:0; margin-top:10px; color:var(--cobalt); font-family:"Inter",sans-serif; font-weight:600; font-size:.86rem; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
 .btn-readmore:hover{ color:var(--bronze-deep); }
 
@@ -516,6 +498,14 @@ table.data-table th{
 table.data-table td{ padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
 table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
 .table-wrap{ overflow-x:auto; border-radius:var(--radius); }
+.photo-manage-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:12px; }
+.photo-manage-tile{
+  border:1px solid var(--line); border-radius:3px; overflow:hidden; background:var(--ivory);
+}
+.photo-manage-tile img{ width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+.photo-manage-actions{ display:flex; gap:4px; padding:6px; }
+.photo-manage-actions .btn{ flex:1; padding:5px 4px; }
+.photo-manage-actions .btn[disabled]{ opacity:.35; cursor:not-allowed; }
 .status-dot{ display:inline-flex; align-items:center; gap:6px; font-weight:600; }
 .status-dot::before{ content:""; width:8px; height:8px; border-radius:50%; }
 .status-dot.on::before{ background:var(--olive); }
@@ -712,7 +702,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
      adı değil, Supabase'in verdiği gerçek (uuid) kimliktir - ama uygulama
      içinde bu değer yine "username" alanında taşınır, böylece geri kalan
      kodun değişmesine gerek kalmaz. */
-  const SB_TABLE = {users:"profiles", events:"events", submissions:"submissions", grades:"grades", announcements:"announcements", showcase_events:"showcase_events", blog_posts:"blog_posts"};
+  const SB_TABLE = {users:"profiles", events:"events", submissions:"submissions", grades:"grades", announcements:"announcements", showcase_events:"showcase_events", blog_posts:"blog_posts", event_photos:"event_photos"};
   const SB_COLUMNS = {
     events: {title:"title", speakerName:"speaker_name", speakerTitle:"speaker_title", location:"location", date:"date", timeSlot:"time_slot", formOpensAt:"form_opens_at", formClosesAt:"form_closes_at", createdBy:"created_by", createdAt:"created_at"},
     submissions: {eventId:"event_id", username:"student_id", studentName:"student_name", attended:"attended", timeSlotChosen:"time_slot_chosen", speakerNameConfirm:"speaker_name_confirm", summaryText:"summary_text", kazanımText:"kazanim_text", submittedAt:"submitted_at"},
@@ -720,7 +710,8 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     announcements: {title:"title", body:"body", createdBy:"created_by", createdAt:"created_at"},
     users: {username:"username", fullName:"full_name", role:"role", active:"active", createdAt:"created_at", schoolNo:"school_no", selfRegistered:"self_registered"},
     showcase_events: {speakerName:"speaker_name", speakerTitle:"speaker_title", topic:"topic", location:"location", date:"event_date", summary:"summary", kazanim:"kazanim", article:"article", createdBy:"created_by", createdAt:"created_at"},
-    blog_posts: {tag:"tag", title:"title", date:"post_date", excerpt:"excerpt", body:"body", createdBy:"created_by", createdAt:"created_at"}
+    blog_posts: {tag:"tag", title:"title", date:"post_date", excerpt:"excerpt", body:"body", createdBy:"created_by", createdAt:"created_at"},
+    event_photos: {eventId:"event_id", url:"url", sortOrder:"sort_order", createdBy:"created_by", createdAt:"created_at"}
   };
   function sbToDbRow(col, obj){
     const map = SB_COLUMNS[col] || {};
@@ -958,11 +949,6 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
       "Atölye, projenin \"Sanat-Gelenek-Miras Atölyeleri\" başlığı altında planlanan uygulamalardan biriydi; öğrenciler görsel anlatının değerler eğitimindeki rolünü tartışırken, kendi kısa belgesel-fotoğraf çalışmaları için de ilham buldu.",
       "Külliyenin türbe ve müze bölümlerinde yapılan kısa bir gezi ile desteklenen etkinlik, öğrencilerin saha defterlerine işlediği gözlemlerle sona erdi."]}
   ];
-  const PUBLIC_NEWS = [
-    {date:"2025-10-05", title:"İlk Buluşma Coşkuyla Gerçekleşti", body:"“İnsan İnsanın Gölgesinde Yetişir” projesinin ilk etkinliği, öğrencilerin ve öğretmenlerin katılımıyla tarihi bir mekânda hayata geçti."},
-    {date:"2026-01-12", title:"2026 Bahar Dönemi Programı Açıklandı", body:"Bahar döneminde alanında uzman isimlerle üç yeni buluşma planlandı; program okulun duyuru panosunda ve sitede paylaşıldı."},
-    {date:"2026-05-02", title:"Öğrenci Değerlendirmeleri Kitapçık Oldu", body:"Öğrencilerin etkinlik sonrası yazdığı açık uçlu değerlendirmelerden seçmeler, dönem sonu küçük bir kitapçıkta bir araya getirildi."}
-  ];
   const BLOG_POSTS = [
     {id:"medeniyetimizin-izinde", date:"2025-10-20", tag:"Seminer", title:"\"Medeniyetimizin İzinde\": Seminer Serimiz Başlıyor",
      excerpt:"Akademisyenlerin katılımıyla düzenlenen \"Medeniyetimizin İzinde\" temalı seminer dizimiz, tasavvuf, şehir kültürü ve medeniyet bilinci konularını işliyor.",
@@ -995,13 +981,6 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
       "Videolar, dijital bir kültürel miras haritası üzerinde bir araya getirilecek; harita, hem okulumuzun hem de şehrimizin ziyaretçileriyle paylaşılabilecek açık bir kaynak olarak tasarlanıyor.",
       "Bu çalışma, projenin \"okul dışı öğrenme ortamlarında deneyim temelli öğrenmeyi yaygınlaştırmak\" hedefiyle doğrudan örtüşüyor; öğrenciler hem teknik hem de anlatım becerilerini bir arada geliştiriyor."]}
   ];
-  const GALLERY_TILES = [
-    {cap:"Ulu Cami Söyleşisi", tone:"turquoise"}, {cap:"Emir Sultan Ziyareti", tone:"olive"},
-    {cap:"Yeşil Cami Buluşması", tone:"bronze"}, {cap:"Muradiye Külliyesi", tone:"kiremit"},
-    {cap:"Öğrenci Değerlendirmeleri", tone:"cobalt"}, {cap:"Tophane Saat Kulesi", tone:"turquoise"},
-    {cap:"İpek Dokuma Atölyesi", tone:"olive"}, {cap:"Dönem Açılışı", tone:"bronze"}
-  ];
-
   /* ---------------- Oturum ---------------- */
   const SESSION_KEY = "iigy_session_v1";
   function getSession(){
@@ -1139,16 +1118,6 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
   function compassSVG(cls){
     return '<svg class="'+(cls||"")+'" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#cbb98f" stroke-width="1.6"><circle cx="50" cy="50" r="42"/><circle cx="50" cy="50" r="30"/><path d="M50 8 L54 46 L50 50 L46 46 Z" fill="#cbb98f" stroke="none"/><path d="M50 92 L46 54 L50 50 L54 54 Z" fill="#cbb98f" stroke="none" opacity="0.6"/><path d="M8 50 H92 M50 8 V92"/><text x="50" y="24" font-size="8" fill="#cbb98f" text-anchor="middle" font-family="serif">K</text></g></svg>';
   }
-  function galleryTileSVG(tone){
-    const colors = {turquoise:"#157a8c", olive:"#5c6b32", bronze:"#7a4b28", kiremit:"#a1442a", cobalt:"#1f3a63"};
-    const c = colors[tone] || "#7a4b28";
-    return '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+
-      '<rect width="100" height="100" fill="'+c+'" opacity="0.85"/>'+
-      '<g fill="none" stroke="#f1e6cf" stroke-width="1.4" opacity="0.55">'+
-      '<path d="M0 20 L20 0 L40 20 L20 40 Z"/><path d="M60 80 L80 60 L100 80 L80 100 Z"/><circle cx="80" cy="20" r="10"/><circle cx="20" cy="80" r="10"/>'+
-      '</g></svg>';
-  }
-
   /* ---------------- Uygulama durumu ---------------- */
   const App = { session:getSession() };
 
@@ -1156,7 +1125,6 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     {href:"#/", label:"Ana Sayfa"},
     {href:"#/proje-hakkinda", label:"Proje Hakkında"},
     {href:"#/etkinlikler", label:"Etkinlikler"},
-    {href:"#/haberler-galeri", label:"Haberler &amp; Galeri"},
     {href:"#/blog", label:"Blog"},
     {href:"#/iletisim", label:"İletişim"}
   ];
@@ -1191,6 +1159,71 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
       }catch(e){ /* sessizce sabit içeriğe düş */ }
     }
     return BLOG_POSTS.slice();
+  }
+
+  /* ---------------- Etkinlik fotoğrafları (yalnızca gerçek veritabanı) ---------------- */
+  async function getEventPhotosFor(eventId){
+    if(Store.mode!=="supabase" && Store.mode!=="db") return [];
+    try{
+      const rows = await Store.getAll("event_photos");
+      return rows.filter(r=>String(r.eventId)===String(eventId)).sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0));
+    }catch(e){ return []; }
+  }
+  /* Yüklenen fotoğrafın kendisi Supabase Storage'daki "event-photos" adlı
+     herkese açık (public-read) bucket'a konur; event_photos tablosuna
+     yalnızca fotoğrafın genel (public) URL'i ve sıra numarası kaydedilir. */
+  async function uploadEventPhoto(eventId, file){
+    if(Store.mode!=="supabase") return {ok:false, msg:"Fotoğraf yükleme yalnızca gerçek veritabanı (Supabase) modunda kullanılabilir."};
+    try{
+      const rawExt = (file.name||"").split(".").pop() || "jpg";
+      const ext = rawExt.toLowerCase().replace(/[^a-z0-9]/g,"") || "jpg";
+      const path = eventId+"/"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+      const { error: upErr } = await Store.sb.storage.from("event-photos").upload(path, file, { upsert:false, contentType: file.type || undefined });
+      if(upErr) return {ok:false, msg: upErr.message || "Yükleme başarısız."};
+      const pubRes = Store.sb.storage.from("event-photos").getPublicUrl(path);
+      const url = pubRes && pubRes.data && pubRes.data.publicUrl;
+      if(!url) return {ok:false, msg:"Fotoğrafın genel bağlantısı alınamadı."};
+      const existing = await getEventPhotosFor(eventId);
+      const nextOrder = existing.length ? (Math.max.apply(null, existing.map(p=>p.sortOrder||0))+1) : 0;
+      const id = "photo-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
+      const res = await Store.setDoc("event_photos", id, {
+        eventId: eventId, url: url, sortOrder: nextOrder,
+        createdBy: (App.session && App.session.username) || null, createdAt: nowISO()
+      });
+      if(res && res.ok===false) return {ok:false, msg:res.error||"Kaydedilemedi."};
+      return {ok:true};
+    }catch(e){ return {ok:false, msg: (e&&e.message) || "Bilinmeyen hata"}; }
+  }
+  /* İki komşu fotoğrafın sırasını (sort_order) değiştirir. direction: -1 = yukarı, +1 = aşağı. */
+  async function moveEventPhoto(eventId, photoId, direction){
+    const photos = await getEventPhotosFor(eventId);
+    const idx = photos.findIndex(p=>p.id===photoId);
+    if(idx<0) return {ok:false};
+    const swapIdx = idx + direction;
+    if(swapIdx<0 || swapIdx>=photos.length) return {ok:false};
+    const a = photos[idx], b = photos[swapIdx];
+    const aOrder = a.sortOrder||0, bOrder = b.sortOrder||0;
+    await Store.updateDoc("event_photos", a.id, {sortOrder:bOrder});
+    await Store.updateDoc("event_photos", b.id, {sortOrder:aOrder});
+    return {ok:true};
+  }
+  /* Fotoğrafın herkese açık URL'inden, Storage bucket'ı içindeki dosya
+     yolunu geri çıkarır - dosyayı silebilmek için gerekli. */
+  function eventPhotoStoragePathFromUrl(url){
+    const marker = "/object/public/event-photos/";
+    const idx = (url||"").indexOf(marker);
+    if(idx<0) return null;
+    return url.slice(idx+marker.length);
+  }
+  /* Storage'daki asıl dosyaları en iyi çaba (best-effort) ile siler;
+     veritabanı satırı zaten silinmiş/silinmek üzeredir, burada başarısızlık
+     kullanıcıya gösterilecek kritik bir hata değildir. */
+  async function deleteEventPhotoFiles(urls){
+    if(Store.mode!=="supabase") return;
+    try{
+      const paths = (urls||[]).map(eventPhotoStoragePathFromUrl).filter(Boolean);
+      if(paths.length) await Store.sb.storage.from("event-photos").remove(paths);
+    }catch(e){ /* sessizce yoksay */ }
   }
 
   /* ---------------- "Devamını Oku" makale modalı (blog yazıları) ---------------- */
@@ -1293,21 +1326,25 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
   }
 
   /* ---------------- Sayfa şablonları ---------------- */
+  function homeStripCard(e){
+    const dt = fmtDateShort(e.date);
+    return (
+      '<a class="event-card is-link" href="#/etkinlik/'+encodeURIComponent(e.id)+'">'+
+        '<div class="seal"><span class="d">'+dt.d+'</span><span class="m">'+dt.m+'</span></div>'+
+        '<div class="body">'+
+          '<div class="who"><div class="avatar">'+initials(e.speaker)+'</div><div class="meta"><div class="title">'+escapeHtml(e.speaker)+'</div><div class="role">'+escapeHtml(e.title)+'</div></div></div>'+
+          '<div class="topic">'+escapeHtml(e.topic)+'</div>'+
+          '<div class="tags"><span class="tag loc">'+ICO.pin+' '+escapeHtml(e.location)+'</span><span class="tag">'+ICO.calendar+' '+fmtDate(e.date)+'</span></div>'+
+        '</div>'+
+      '</a>'
+    );
+  }
+
   async function viewHome(){
     const showcase = await getShowcaseEvents();
-    const strip = showcase.slice(0,4).map((e)=>{
-      const dt = fmtDateShort(e.date);
-      return (
-        '<a class="event-card is-link" href="#/etkinlik/'+encodeURIComponent(e.id)+'">'+
-          '<div class="seal"><span class="d">'+dt.d+'</span><span class="m">'+dt.m+'</span></div>'+
-          '<div class="body">'+
-            '<div class="who"><div class="avatar">'+initials(e.speaker)+'</div><div class="meta"><div class="title">'+escapeHtml(e.speaker)+'</div><div class="role">'+escapeHtml(e.title)+'</div></div></div>'+
-            '<div class="topic">'+escapeHtml(e.topic)+'</div>'+
-            '<div class="tags"><span class="tag loc">'+ICO.pin+' '+escapeHtml(e.location)+'</span></div>'+
-          '</div>'+
-        '</a>'
-      );
-    }).join("");
+    const { upcoming, past } = splitShowcaseByDate(showcase);
+    const upcomingStrip = upcoming.slice(0,4).map(homeStripCard).join("");
+    const pastStrip = past.slice(0,4).map(homeStripCard).join("");
     return (
       '<section class="hero">'+
         '<div class="hero-inner">'+
@@ -1325,11 +1362,20 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
         '</div>'+
         '<div class="motif-divider turquoise"></div>'+
       '</section>'+
-      '<section class="hero-strip"><div class="wrap">'+
-        '<h2>Geçmiş Etkinliklerden</h2>'+
-        '<div class="strip-row">'+strip+'</div>'+
-      '</div></section>'+
-      '<div class="motif-divider bronze"></div>'
+      (upcoming.length ? (
+        '<section class="hero-strip"><div class="wrap">'+
+          '<h2>Yaklaşan Etkinlikler</h2>'+
+          '<div class="strip-row">'+upcomingStrip+'</div>'+
+        '</div></section>'+
+        '<div class="motif-divider bronze"></div>'
+      ) : "")+
+      (past.length ? (
+        '<section class="hero-strip'+(upcoming.length?" alt":"")+'"><div class="wrap">'+
+          '<h2>Geçmiş Etkinliklerden</h2>'+
+          '<div class="strip-row">'+pastStrip+'</div>'+
+        '</div></section>'+
+        '<div class="motif-divider bronze"></div>'
+      ) : "")
     );
   }
 
@@ -1386,7 +1432,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
 
   function eventDetailCard(e, isUpcoming, idForLink){
     const dt = fmtDateShort(e.date);
-    const hasDetail = !isUpcoming && idForLink && e.article && e.article.length;
+    const hasDetail = idForLink && e.article && e.article.length;
     const tag = hasDetail ? "a" : "div";
     const attrs = hasDetail ? ' href="#/etkinlik/'+encodeURIComponent(idForLink)+'"' : "";
     return (
@@ -1405,18 +1451,29 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     );
   }
 
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function splitShowcaseByDate(showcase){
+    const today = todayISO();
+    const upcoming = [], past = [];
+    showcase.forEach(e=>{ if((e.date||"") >= today) upcoming.push(e); else past.push(e); });
+    // Yaklaşan etkinlikler en yakın tarihten uzağa doğru sıralanır.
+    upcoming.sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+    // Geçmiş etkinlikler zaten en yeniden en eskiye doğru geliyor (getShowcaseEvents sıralaması).
+    return { upcoming, past };
+  }
+
   async function viewEvents(){
     const showcase = await getShowcaseEvents();
-    const upcomingExample = {speaker:"Dr. Nurullah Sağlam", title:"Vakıflar Bölge Müdürlüğü Uzmanı", topic:"Vakıf Kültürü ve Bursa", location:"Muradiye Külliyesi", date:new Date(Date.now()+3*86400000).toISOString().slice(0,10), summary:"Bursa'daki vakıf eserlerinin şehir hayatına katkısı, Muradiye Külliyesi'nde yerinde işlenecek.", kazanım:"Vakıf medeniyetinin günümüze uzanan izlerini tanıma."};
+    const { upcoming, past } = splitShowcaseByDate(showcase);
     return (
       '<section class="section"><div class="wrap">'+
-        '<div class="section-head"><span class="eyebrow">Etkinlik Takvimi</span><h2>Gelecek Etkinlikler</h2><p>Aşağıdaki örnek, panodaki "bu hafta açık etkinlik" kartının halka açık görünümüdür. Katılım ve değerlendirme, öğrenci girişinden yapılır.</p></div>'+
-        '<div class="grid-3">'+eventDetailCard(upcomingExample, true)+'</div>'+
+        '<div class="section-head"><span class="eyebrow">Etkinlik Takvimi</span><h2>Gelecek Etkinlikler</h2><p>Katılım ve değerlendirme, öğrenci girişinden yapılır.</p></div>'+
+        '<div class="grid-3">'+(upcoming.length ? upcoming.map((e)=>eventDetailCard(e,true,e.id)).join("") : '<div class="empty-note">Şu anda planlanmış bir yaklaşan etkinlik yok.</div>')+'</div>'+
       '</div></section>'+
       '<div class="motif-divider bronze"></div>'+
       '<section class="section alt"><div class="wrap">'+
         '<div class="section-head"><span class="eyebrow">Arşiv</span><h2>Geçmiş Etkinlikler</h2><p>Bir karta tıkladığınızda, o günün konusuna dair görsel bilgiler ve ayrıntılı bir yazının yer aldığı etkinlik sayfası açılır.</p></div>'+
-        '<div class="grid-3">'+(showcase.length ? showcase.map((e)=>eventDetailCard(e,false,e.id)).join("") : '<div class="empty-note">Henüz eklenmiş bir geçmiş etkinlik yok.</div>')+'</div>'+
+        '<div class="grid-3">'+(past.length ? past.map((e)=>eventDetailCard(e,false,e.id)).join("") : '<div class="empty-note">Henüz eklenmiş bir geçmiş etkinlik yok.</div>')+'</div>'+
       '</div></section>'
     );
   }
@@ -1432,13 +1489,23 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
         '</div></section>'
       );
     }
+    const isUpcoming = (e.date||"") >= todayISO();
+    const photos = await getEventPhotosFor(e.id);
+    const galleryHtml = photos.length ? (
+      '<div class="section-head" style="margin:30px 0 14px;"><h2 style="font-size:1.3rem;">Fotoğraflar</h2></div>'+
+      '<div class="event-photo-grid">'+photos.map(p=>(
+        '<a class="event-photo-tile" href="'+escapeHtml(p.url)+'" target="_blank" rel="noopener">'+
+          '<img src="'+escapeHtml(p.url)+'" alt="'+escapeHtml(e.topic)+' — etkinlik fotoğrafı" loading="lazy">'+
+        '</a>'
+      )).join("")+'</div>'
+    ) : "";
     return (
       '<section class="section"><div class="wrap" style="max-width:820px;">'+
-        '<a class="back-link" href="#/etkinlikler">&larr; Geçmiş Etkinliklere Dön</a>'+
+        '<a class="back-link" href="#/etkinlikler">&larr; Etkinliklere Dön</a>'+
         '<div class="event-detail-banner">'+
           '<div class="avatar-lg">'+initials(e.speaker)+'</div>'+
           '<div class="edb-info">'+
-            '<span class="eyebrow">Geçmiş Etkinlik</span>'+
+            '<span class="eyebrow">'+(isUpcoming?"Yaklaşan Etkinlik":"Geçmiş Etkinlik")+'</span>'+
             '<h1>'+escapeHtml(e.topic)+'</h1>'+
             '<div class="edb-who">'+escapeHtml(e.speaker)+' &middot; '+escapeHtml(e.title)+'</div>'+
             '<div class="tags">'+
@@ -1451,25 +1518,7 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
         '<div class="kazanim-box"><strong>Kazanım:</strong> '+escapeHtml(e.kazanım)+'</div>'+
         '<div class="section-head" style="margin:30px 0 14px;"><h2 style="font-size:1.3rem;">Etkinlik Hakkında</h2></div>'+
         '<div class="article-body">'+e.article.map(p=>'<p>'+escapeHtml(p)+'</p>').join("")+'</div>'+
-      '</div></section>'
-    );
-  }
-
-  function viewNews(){
-    const news = PUBLIC_NEWS.map(n=>{
-      const dt = fmtDateShort(n.date);
-      return '<div class="news-item"><div class="news-date"><div class="d">'+dt.d+'</div><div class="m">'+dt.m+'</div></div><div><h3>'+escapeHtml(n.title)+'</h3><p>'+escapeHtml(n.body)+'</p></div></div>';
-    }).join("");
-    const gallery = GALLERY_TILES.map(g=>'<div class="gallery-tile">'+galleryTileSVG(g.tone)+'<div class="cap">'+escapeHtml(g.cap)+'</div></div>').join("");
-    return (
-      '<section class="section"><div class="wrap">'+
-        '<div class="section-head"><span class="eyebrow">Haberler</span><h2>Projeden Son Gelişmeler</h2></div>'+
-        '<div class="card-panel">'+news+'</div>'+
-      '</div></section>'+
-      '<div class="motif-divider turquoise"></div>'+
-      '<section class="section alt"><div class="wrap">'+
-        '<div class="section-head"><span class="eyebrow">Galeri</span><h2>Etkinliklerden Kareler</h2><p>Aşağıdaki karolar, gerçek fotoğrafların yerini tutan stilize temsili illüstrasyonlardır — gerçek etkinlik fotoğrafları eklendiğinde bu alanı doğrudan değiştirebilirsiniz.</p></div>'+
-        '<div class="gallery-grid">'+gallery+'</div>'+
+        galleryHtml+
       '</div></section>'
     );
   }
@@ -1645,10 +1694,11 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
 
   async function viewTeacherPanel(){
     const session = App.session;
-    const [users, events, submissions, grades, announcements, showcaseEvents, blogPosts] = await Promise.all([
+    const [users, events, submissions, grades, announcements, showcaseEvents, blogPosts, eventPhotos] = await Promise.all([
       Store.getAll("users"), Store.getAll("events"), Store.getAll("submissions"), Store.getAll("grades"), Store.getAll("announcements"),
       (Store.mode==="supabase"||Store.mode==="db") ? Store.getAll("showcase_events") : Promise.resolve([]),
-      (Store.mode==="supabase"||Store.mode==="db") ? Store.getAll("blog_posts") : Promise.resolve([])
+      (Store.mode==="supabase"||Store.mode==="db") ? Store.getAll("blog_posts") : Promise.resolve([]),
+      (Store.mode==="supabase"||Store.mode==="db") ? Store.getAll("event_photos") : Promise.resolve([])
     ]);
     const students = users.filter(u=>u.role==="ogrenci");
     const canManageShowcase = Store.mode==="supabase" || Store.mode==="db";
@@ -1811,6 +1861,31 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
           '<button class="btn btn-danger btn-sm" data-act="deleteShowcase" data-id="'+e.id+'">Sil</button>'+
         '</td></tr>'
       )).join("");
+      const scPhotos = editingSc ? eventPhotos.filter(p=>String(p.eventId)===String(editingSc.id)).sort((a,b)=>(a.sortOrder||0)-(b.sortOrder||0)) : [];
+      const photosPanel = editingSc ? (
+        '<div class="card-panel" style="margin-bottom:24px;">'+
+          '<h3 style="margin-top:0;">Fotoğraflar</h3>'+
+          '<p class="hint" style="margin-top:-6px;margin-bottom:14px;">Bu etkinliğe istediğiniz kadar fotoğraf ekleyebilirsiniz; ok düğmeleriyle değiştirdiğiniz sıra, herkese açık etkinlik sayfasındaki galeride de aynen görünür.</p>'+
+          (scPhotos.length ? (
+            '<div class="photo-manage-grid">'+scPhotos.map((p,i)=>(
+              '<div class="photo-manage-tile">'+
+                '<img src="'+escapeHtml(p.url)+'" alt="Etkinlik fotoğrafı">'+
+                '<div class="photo-manage-actions">'+
+                  '<button class="btn btn-ghost btn-sm" type="button" data-act="movePhotoUp" data-id="'+p.id+'" '+(i===0?"disabled":"")+' title="Yukarı taşı">&uarr;</button>'+
+                  '<button class="btn btn-ghost btn-sm" type="button" data-act="movePhotoDown" data-id="'+p.id+'" '+(i===scPhotos.length-1?"disabled":"")+' title="Aşağı taşı">&darr;</button>'+
+                  '<button class="btn btn-danger btn-sm" type="button" data-act="deletePhoto" data-id="'+p.id+'" title="Kaldır">Sil</button>'+
+                '</div>'+
+              '</div>'
+            )).join("")+'</div>'
+          ) : '<div class="empty-note">Henüz fotoğraf eklenmedi.</div>')+
+          (Store.mode==="supabase" ? (
+            '<form id="eventPhotoUploadForm" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'+
+              '<input type="file" name="photoFile" accept="image/*" required>'+
+              '<button class="btn btn-primary btn-sm" type="submit">Fotoğraf Ekle</button>'+
+            '</form>'
+          ) : '<p class="hint" style="margin-top:14px;">Fotoğraf yükleme yalnızca gerçek veritabanı (Supabase) bağlıyken kullanılabilir.</p>')+
+        '</div>'
+      ) : "";
       body = (
         '<div class="card-panel" style="margin-bottom:24px;">'+
           '<h3 style="margin-top:0;">'+(editingSc?"Vitrin Etkinliğini Güncelle":"Yeni Vitrin Etkinliği Ekle")+'</h3>'+
@@ -1819,20 +1894,21 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
             '<input type="hidden" name="editId" value="'+(editingSc?escapeHtml(editingSc.id):"")+'">'+
             '<div class="form-grid">'+
               '<div class="form-field"><label>Konu / Başlık</label><input type="text" name="topic" required value="'+(editingSc?escapeHtml(editingSc.topic):"")+'"></div>'+
-              '<div class="form-field"><label>Konuşmacı Adı</label><input type="text" name="speakerName" required value="'+(editingSc?escapeHtml(editingSc.speaker):"")+'"></div>'+
-              '<div class="form-field"><label>Konuşmacı Unvanı</label><input type="text" name="speakerTitle" value="'+(editingSc?escapeHtml(editingSc.title||""):"")+'"></div>'+
+              '<div class="form-field"><label>Konuşmacı Adı</label><input type="text" name="speakerName" required value="'+(editingSc?escapeHtml(editingSc.speakerName):"")+'"></div>'+
+              '<div class="form-field"><label>Konuşmacı Unvanı</label><input type="text" name="speakerTitle" value="'+(editingSc?escapeHtml(editingSc.speakerTitle||""):"")+'"></div>'+
               '<div class="form-field"><label>Lokasyon</label><input type="text" name="location" required value="'+(editingSc?escapeHtml(editingSc.location):"")+'"></div>'+
               '<div class="form-field"><label>Tarih</label><input type="date" name="date" required value="'+(editingSc?escapeHtml(editingSc.date||""):"")+'"></div>'+
             '</div>'+
             '<div class="form-field"><label>Kısa Özet</label><textarea name="summary" required placeholder="Kart üzerinde görünen kısa özet.">'+(editingSc?escapeHtml(editingSc.summary||""):"")+'</textarea></div>'+
-            '<div class="form-field"><label>Kazanım</label><textarea name="kazanim" required placeholder="Öğrencilerin bu etkinlikten edindiği kazanım.">'+(editingSc?escapeHtml(editingSc.kazanım||""):"")+'</textarea></div>'+
-            '<div class="form-field"><label>Ayrıntılı Yazı (paragraflar arasına boş satır bırakın)</label><textarea name="article" required style="min-height:160px;" placeholder="Etkinlik sayfasında görünecek uzun metin.">'+(editingSc?escapeHtml((editingSc.article||[]).join("\n\n")):"")+'</textarea></div>'+
+            '<div class="form-field"><label>Kazanım</label><textarea name="kazanim" required placeholder="Öğrencilerin bu etkinlikten edindiği kazanım.">'+(editingSc?escapeHtml(editingSc.kazanim||""):"")+'</textarea></div>'+
+            '<div class="form-field"><label>Ayrıntılı Yazı (paragraflar arasına boş satır bırakın)</label><textarea name="article" required style="min-height:160px;" placeholder="Etkinlik sayfasında görünecek uzun metin.">'+(editingSc?escapeHtml((Array.isArray(editingSc.article)?editingSc.article.join("\n\n"):(editingSc.article||""))):"")+'</textarea></div>'+
             '<div style="display:flex;gap:10px;">'+
               '<button class="btn btn-primary" type="submit">'+(editingSc?"Güncelle":"Ekle")+'</button>'+
               (editingSc ? '<button class="btn btn-ghost" type="button" data-act="cancelEditShowcase">İptal</button>' : '')+
             '</div>'+
           '</form>'+
         '</div>'+
+        photosPanel+
         (showcaseEvents.length ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Konu</th><th>Konuşmacı</th><th>Tarih</th><th>Lokasyon</th><th>İşlemler</th></tr></thead><tbody>'+scList+'</tbody></table></div>' : '<div class="empty-note">Henüz vitrin etkinliği eklenmedi — üst menüdeki "Etkinlikler" sayfasında örnek/tanıtım içerik gösteriliyor.</div>')
       );
     } else {
@@ -2024,8 +2100,6 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     } else if(path.indexOf("#/etkinlikler")===0){
       app.innerHTML = '<div class="app-shell"><div class="wrap"><p class="hint">Yükleniyor…</p></div></div>';
       app.innerHTML = await viewEvents();
-    } else if(path.indexOf("#/haberler-galeri")===0){
-      app.innerHTML = viewNews();
     } else if(path.indexOf("#/blog")===0){
       app.innerHTML = '<div class="app-shell"><div class="wrap"><p class="hint">Yükleniyor…</p></div></div>';
       app.innerHTML = await viewBlog();
@@ -2322,7 +2396,10 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
           data.createdAt = nowISO();
           const res = await Store.setDoc("showcase_events", id, data);
           if(res && res.ok===false){ toast("Eklenemedi: "+(res.error||"bilinmeyen hata"), true); return; }
-          toast("Vitrin etkinliği eklendi.");
+          toast("Vitrin etkinliği eklendi. Şimdi fotoğraf da ekleyebilirsiniz.");
+          // Yeni eklenen etkinliği doğrudan düzenleme görünümüne al ki
+          // fotoğraf ekleme paneli hemen görünsün.
+          teacherEditingShowcaseId = id;
         }
         render();
       });
@@ -2336,11 +2413,59 @@ table.data-table tr:hover td{ background:rgba(21,122,140,0.05); }
     }
     $all("[data-act=deleteShowcase]").forEach(b=>{
       b.addEventListener("click", async function(){
-        if(!confirm("Bu vitrin etkinliğini silmek istediğinize emin misiniz?")) return;
-        const res = await Store.deleteDoc("showcase_events", b.dataset.id);
+        if(!confirm("Bu vitrin etkinliğini silmek istediğinize emin misiniz? Etkinliğe ait tüm fotoğraflar da silinecek.")) return;
+        const id = b.dataset.id;
+        const photosToRemove = await getEventPhotosFor(id);
+        const res = await Store.deleteDoc("showcase_events", id);
         if(res && res.ok===false){ toast("Silinemedi: "+(res.error||"bilinmeyen hata"), true); return; }
-        if(teacherEditingShowcaseId===b.dataset.id) teacherEditingShowcaseId = null;
+        // Etkinlik silinince event_photos satırları veritabanında otomatik
+        // silinir (on delete cascade); burada yalnızca Storage'daki asıl
+        // dosyaları temizliyoruz (en iyi çaba - başarısız olursa sessizce geçilir).
+        if(photosToRemove.length) deleteEventPhotoFiles(photosToRemove.map(p=>p.url));
+        if(teacherEditingShowcaseId===id) teacherEditingShowcaseId = null;
         toast("Vitrin etkinliği silindi.");
+        render();
+      });
+    });
+    const eventPhotoUploadForm = $("#eventPhotoUploadForm");
+    if(eventPhotoUploadForm){
+      eventPhotoUploadForm.addEventListener("submit", async function(ev){
+        ev.preventDefault();
+        const fileInput = eventPhotoUploadForm.querySelector("input[name=photoFile]");
+        const file = fileInput && fileInput.files && fileInput.files[0];
+        if(!file){ toast("Lütfen bir fotoğraf seçin.", true); return; }
+        if(!teacherEditingShowcaseId){ toast("Önce bir vitrin etkinliği seçin.", true); return; }
+        const submitBtn = eventPhotoUploadForm.querySelector("button[type=submit]");
+        if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "Yükleniyor…"; }
+        const res = await uploadEventPhoto(teacherEditingShowcaseId, file);
+        if(!res.ok){ toast("Fotoğraf eklenemedi: "+(res.msg||"bilinmeyen hata"), true); if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent="Fotoğraf Ekle"; } return; }
+        toast("Fotoğraf eklendi.");
+        render();
+      });
+    }
+    $all("[data-act=movePhotoUp]").forEach(b=>{
+      b.addEventListener("click", async function(){
+        if(b.disabled) return;
+        await moveEventPhoto(teacherEditingShowcaseId, b.dataset.id, -1);
+        render();
+      });
+    });
+    $all("[data-act=movePhotoDown]").forEach(b=>{
+      b.addEventListener("click", async function(){
+        if(b.disabled) return;
+        await moveEventPhoto(teacherEditingShowcaseId, b.dataset.id, 1);
+        render();
+      });
+    });
+    $all("[data-act=deletePhoto]").forEach(b=>{
+      b.addEventListener("click", async function(){
+        if(!confirm("Bu fotoğrafı kaldırmak istediğinize emin misiniz?")) return;
+        const photos = await getEventPhotosFor(teacherEditingShowcaseId);
+        const photo = photos.find(p=>p.id===b.dataset.id);
+        const res = await Store.deleteDoc("event_photos", b.dataset.id);
+        if(res && res.ok===false){ toast("Silinemedi: "+(res.error||"bilinmeyen hata"), true); return; }
+        if(photo) deleteEventPhotoFiles([photo.url]);
+        toast("Fotoğraf kaldırıldı.");
         render();
       });
     });
