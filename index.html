@@ -440,7 +440,8 @@ input:focus, textarea:focus, select:focus{ border-color:var(--turquoise); }
 .modal-body{ padding:18px 26px 26px; }
 
 .modal.modal-article{ max-width:640px; max-height:86vh; display:flex; flex-direction:column; }
-.modal.modal-article .modal-body{ overflow-y:auto; }
+.modal.modal-article .modal-head{ flex:none; }
+.modal.modal-article .modal-body{ overflow-y:auto; flex:1 1 auto; min-height:0; }
 .article-tag{ display:inline-block; font-family:"Inter",sans-serif; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--cobalt); background:rgba(21,122,140,0.1); border:1px solid rgba(21,122,140,0.3); border-radius:20px; padding:3px 10px; margin-bottom:10px; }
 .article-meta{ font-family:"Inter",sans-serif; font-size:.82rem; color:var(--ink-soft); margin:0 0 14px; }
 .article-body p{ margin:0 0 13px; font-size:.98rem; line-height:1.65; color:var(--ink); }
